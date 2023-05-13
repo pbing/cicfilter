@@ -10,8 +10,8 @@ import Vector::*;
 //
 // G_max = (R M)^N
 interface CICClient_IFC#(numeric type r, numeric type n, numeric type m, type a);
-   interface Get#(any_t) request;
-   interface Put#(any_t) response;
+   interface Get#(a) request;
+   interface Put#(a) response;
 endinterface
 
 interface CICServer_IFC#(numeric type r, numeric type n, numeric type m, type a);
