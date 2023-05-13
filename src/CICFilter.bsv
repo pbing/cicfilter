@@ -63,7 +63,7 @@ module mkCICDecimationFilter (CICServer_IFC#(r, n, m, a))
 
    interface Put request;
       method Action put(x);
-         istg[0] <= istg[0] + unpack(signExtend(pack(x)));
+         istg[0] <= istg[0] + x;
       endmethod
    endinterface
 
