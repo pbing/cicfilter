@@ -1,0 +1,7 @@
+bdir/
+simdir/
+verilog/mkTb*.v
+*.so
+*.gtkw
+*.vcd
+bsim
