@@ -6,9 +6,9 @@
 //
 // Ports:
 // Name                         I/O  size props
-// RDY_request_put                O     1 const
+// RDY_request_put                O     1
 // response_get                   O    24 reg
-// RDY_response_get               O     1
+// RDY_response_get               O     1 const
 // CLK                            I     1 clock
 // RST_N                          I     1 reset
 // request_put                    I    24
@@ -32,16 +32,16 @@
   `define BSV_RESET_EDGE negedge
 `endif
 
-module mkCICComplexDecimationFilter_4_3_2(CLK,
-					  RST_N,
+module mkCICComplexInterpolationFilter_4_3_2(CLK,
+					     RST_N,
 
-					  request_put,
-					  EN_request_put,
-					  RDY_request_put,
+					     request_put,
+					     EN_request_put,
+					     RDY_request_put,
 
-					  EN_response_get,
-					  response_get,
-					  RDY_response_get);
+					     EN_response_get,
+					     response_get,
+					     RDY_response_get);
   input  CLK;
   input  RST_N;
 
@@ -131,11 +131,11 @@ module mkCICComplexDecimationFilter_4_3_2(CLK,
   wire [11 : 0] request_put_BITS_11_TO_0__q2, request_put_BITS_23_TO_12__q1;
 
   // action method request_put
-  assign RDY_request_put = 1'd1 ;
+  assign RDY_request_put = ifc_count == 2'd3 ;
 
   // actionvalue method response_get
-  assign response_get = { ifc_dstg_2[41:30], ifc_dstg_2[20:9] } ;
-  assign RDY_response_get = ifc_count == 2'd3 ;
+  assign response_get = { ifc_istg_2[41:30], ifc_istg_2[20:9] } ;
+  assign RDY_response_get = 1'd1 ;
 
   // inlined wires
   assign ifc_wr_x$wget =
@@ -149,64 +149,64 @@ module mkCICComplexDecimationFilter_4_3_2(CLK,
   assign ifc_count$EN = 1'd1 ;
 
   // register ifc_ddly_0_0
-  assign ifc_ddly_0_0$D_IN = ifc_istg_2 ;
-  assign ifc_ddly_0_0$EN = ifc_count == 2'd3 ;
+  assign ifc_ddly_0_0$D_IN = ifc_wr_x$wget ;
+  assign ifc_ddly_0_0$EN = EN_request_put ;
 
   // register ifc_ddly_0_1
   assign ifc_ddly_0_1$D_IN = ifc_ddly_0_0 ;
-  assign ifc_ddly_0_1$EN = ifc_count == 2'd3 ;
+  assign ifc_ddly_0_1$EN = EN_request_put ;
 
   // register ifc_ddly_1_0
   assign ifc_ddly_1_0$D_IN = ifc_dstg_0 ;
-  assign ifc_ddly_1_0$EN = ifc_count == 2'd3 ;
+  assign ifc_ddly_1_0$EN = EN_request_put ;
 
   // register ifc_ddly_1_1
   assign ifc_ddly_1_1$D_IN = ifc_ddly_1_0 ;
-  assign ifc_ddly_1_1$EN = ifc_count == 2'd3 ;
+  assign ifc_ddly_1_1$EN = EN_request_put ;
 
   // register ifc_ddly_2_0
   assign ifc_ddly_2_0$D_IN = ifc_dstg_1 ;
-  assign ifc_ddly_2_0$EN = ifc_count == 2'd3 ;
+  assign ifc_ddly_2_0$EN = EN_request_put ;
 
   // register ifc_ddly_2_1
   assign ifc_ddly_2_1$D_IN = ifc_ddly_2_0 ;
-  assign ifc_ddly_2_1$EN = ifc_count == 2'd3 ;
+  assign ifc_ddly_2_1$EN = EN_request_put ;
 
   // register ifc_dstg_0
   assign ifc_dstg_0$D_IN =
-	     { ifc_istg_2[41:21] - ifc_ddly_0_1[41:21],
-	       ifc_istg_2[20:0] - ifc_ddly_0_1[20:0] } ;
-  assign ifc_dstg_0$EN = ifc_count == 2'd3 ;
+	     { ifc_wr_x$wget[41:21] - ifc_ddly_0_1[41:21],
+	       ifc_wr_x$wget[20:0] - ifc_ddly_0_1[20:0] } ;
+  assign ifc_dstg_0$EN = EN_request_put ;
 
   // register ifc_dstg_1
   assign ifc_dstg_1$D_IN =
 	     { ifc_dstg_0[41:21] - ifc_ddly_1_1[41:21],
 	       ifc_dstg_0[20:0] - ifc_ddly_1_1[20:0] } ;
-  assign ifc_dstg_1$EN = ifc_count == 2'd3 ;
+  assign ifc_dstg_1$EN = EN_request_put ;
 
   // register ifc_dstg_2
   assign ifc_dstg_2$D_IN =
 	     { ifc_dstg_1[41:21] - ifc_ddly_2_1[41:21],
 	       ifc_dstg_1[20:0] - ifc_ddly_2_1[20:0] } ;
-  assign ifc_dstg_2$EN = ifc_count == 2'd3 ;
+  assign ifc_dstg_2$EN = EN_request_put ;
 
   // register ifc_istg_0
   assign ifc_istg_0$D_IN =
-	     { ifc_istg_0[41:21] + ifc_wr_x$wget[41:21],
-	       ifc_istg_0[20:0] + ifc_wr_x$wget[20:0] } ;
-  assign ifc_istg_0$EN = EN_request_put ;
+	     { ifc_istg_0[41:21] + ifc_dstg_2[41:21],
+	       ifc_istg_0[20:0] + ifc_dstg_2[20:0] } ;
+  assign ifc_istg_0$EN = 1'd1 ;
 
   // register ifc_istg_1
   assign ifc_istg_1$D_IN =
 	     { ifc_istg_1[41:21] + ifc_istg_0[41:21],
 	       ifc_istg_1[20:0] + ifc_istg_0[20:0] } ;
-  assign ifc_istg_1$EN = EN_request_put ;
+  assign ifc_istg_1$EN = 1'd1 ;
 
   // register ifc_istg_2
   assign ifc_istg_2$D_IN =
 	     { ifc_istg_2[41:21] + ifc_istg_1[41:21],
 	       ifc_istg_2[20:0] + ifc_istg_1[20:0] } ;
-  assign ifc_istg_2$EN = EN_request_put ;
+  assign ifc_istg_2$EN = 1'd1 ;
 
   // remaining internal signals
   assign request_put_BITS_11_TO_0__q2 = request_put[11:0] ;
@@ -283,5 +283,5 @@ module mkCICComplexDecimationFilter_4_3_2(CLK,
   end
   `endif // BSV_NO_INITIAL_BLOCKS
   // synopsys translate_on
-endmodule  // mkCICComplexDecimationFilter_4_3_2
+endmodule  // mkCICComplexInterpolationFilter_4_3_2
 

@@ -1,6 +1,7 @@
-package CICFilter;
+package CICComplexFilter;
 
 import ClientServer::*;
+import Complex::*;
 import GetPut::*;
 import Vector::*;
 
@@ -9,20 +10,20 @@ import Vector::*;
 // M = differential delay per stage
 //
 // G_max = (R M)^N
-interface CICClient_IFC#(numeric type r, numeric type n, numeric type m, numeric type sa, numeric type sb);
-   interface Get#(Int#(sa)) request;
-   interface Put#(Int#(sb)) response;
+interface CICComplexClient_IFC#(numeric type r, numeric type n, numeric type m, numeric type sa, numeric type sb);
+   interface Get#(Complex#(Int#(sa))) request;
+   interface Put#(Complex#(Int#(sb))) response;
 endinterface
 
-interface CICServer_IFC#(numeric type r, numeric type n, numeric type m, numeric type sa, numeric type sb);
-   interface Put#(Int#(sa)) request;
-   interface Get#(Int#(sb)) response;
+interface CICComplexServer_IFC#(numeric type r, numeric type n, numeric type m, numeric type sa, numeric type sb);
+   interface Put#(Complex#(Int#(sa))) request;
+   interface Get#(Complex#(Int#(sb))) response;
 endinterface
 
 /********************************************************************************
 * Decimation Filter
 ********************************************************************************/
-module mkCICDecimationFilter (CICServer_IFC#(r, n, m, sa, sb))
+module mkCICComplexDecimationFilter (CICComplexServer_IFC#(r, n, m, sa, sb))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
              Add#(sa, c__, sb),
@@ -32,12 +33,12 @@ module mkCICDecimationFilter (CICServer_IFC#(r, n, m, sa, sb))
              Mul#(lrm, n, lrmn),
              Add#(sa, lrmn, sf));
 
-   Vector#(n, Reg#(Int#(sf))) istg <- replicateM(mkReg(0));
-   Vector#(n, Reg#(Int#(sf))) dstg <- replicateM(mkReg(0));
-   Vector#(n, Vector#(m, Reg#(Int#(sf)))) ddly <- replicateM(replicateM(mkReg(0)));
+   Vector#(n, Reg#(Complex#(Int#(sf)))) istg <- replicateM(mkReg(0));
+   Vector#(n, Reg#(Complex#(Int#(sf)))) dstg <- replicateM(mkReg(0));
+   Vector#(n, Vector#(m, Reg#(Complex#(Int#(sf))))) ddly <- replicateM(replicateM(mkReg(0)));
    Reg#(Bit#(TLog#(r))) count <- mkReg(0);
    Wire#(Bool) tick <- mkWire;
-   Wire#(Int#(sf)) wr_x <- mkWire;
+   Wire#(Complex#(Int#(sf))) wr_x <- mkWire;
 
    rule rl_integrators;
       for (Integer i = 0; i < valueOf(n); i = i + 1)
@@ -76,14 +77,14 @@ module mkCICDecimationFilter (CICServer_IFC#(r, n, m, sa, sb))
 
    interface Put request;
       method Action put(x);
-         wr_x <= extend(x);
+         wr_x <= cmplxMap(extend, x);
       endmethod
    endinterface
 
    interface Get response;
-      method ActionValue#(Int#(sb)) get() if (tick);
+      method ActionValue#(Complex#(Int#(sb))) get() if (tick);
          let truncLSB = compose(unpack, compose(truncateLSB, pack));
-         return truncLSB(readReg(last(dstg)));
+         return cmplxMap(truncLSB, readReg(last(dstg)));
       endmethod
    endinterface
 endmodule
@@ -91,7 +92,8 @@ endmodule
 /********************************************************************************
 * Interpolation Filter
 ********************************************************************************/
-module mkCICInterpolationFilter (CICServer_IFC#(r, n, m, sa, sb))
+
+module mkCICComplexInterpolationFilter (CICComplexServer_IFC#(r, n, m, sa, sb))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
              Add#(sa, c__, sb),
@@ -101,12 +103,12 @@ module mkCICInterpolationFilter (CICServer_IFC#(r, n, m, sa, sb))
              Mul#(lrm, n, lrmn),
              Add#(sa, lrmn, sf));
 
-   Vector#(n, Reg#(Int#(sf))) istg <- replicateM(mkReg(0));
-   Vector#(n, Reg#(Int#(sf))) dstg <- replicateM(mkReg(0));
-   Vector#(n, Vector#(m, Reg#(Int#(sf)))) ddly <- replicateM(replicateM(mkReg(0)));
+   Vector#(n, Reg#(Complex#(Int#(sf)))) istg <- replicateM(mkReg(0));
+   Vector#(n, Reg#(Complex#(Int#(sf)))) dstg <- replicateM(mkReg(0));
+   Vector#(n, Vector#(m, Reg#(Complex#(Int#(sf))))) ddly <- replicateM(replicateM(mkReg(0)));
    Reg#(Bit#(TLog#(r))) count <- mkReg(0);
    Wire#(Bool) tick <- mkWire;
-   Wire#(Int#(sf)) wr_x <- mkWire;
+   Wire#(Complex#(Int#(sf))) wr_x <- mkWire;
 
    rule rl_integrators;
       for (Integer i = 0; i < valueOf(n); i = i + 1)
@@ -144,14 +146,14 @@ module mkCICInterpolationFilter (CICServer_IFC#(r, n, m, sa, sb))
    // assumes constant 'x' between ticks
    interface Put request;
       method Action put(x) if (tick);
-         wr_x <= extend(x);
+         wr_x <= cmplxMap(extend, x);
       endmethod
    endinterface
 
    interface Get response;
-      method ActionValue#(Int#(sb)) get();
+      method ActionValue#(Complex#(Int#(sb))) get();
          let truncLSB = compose(unpack, compose(truncateLSB, pack));
-         return truncLSB(readReg(last(istg)));
+         return cmplxMap(truncLSB, readReg(last(istg)));
       endmethod
    endinterface
 endmodule

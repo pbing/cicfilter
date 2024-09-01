@@ -18,6 +18,8 @@ or
 ```shell
 ./brun.sh mkTb1 -m 100
 ./brun.sh mkTb2 -m 100
+./brun.sh mkTb3 -m 100
+./brun.sh mkTb4 -m 100
 ```
 
 # Create RTL
