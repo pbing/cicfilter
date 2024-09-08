@@ -1,28 +1,19 @@
 package CICFilter;
 
-import ClientServer::*;
 import GetPut::*;
 import Vector::*;
 
-// R = rate change factor
-// N = number of comb stages
-// M = differential delay per stage
-//
-// G_max = (R M)^N
-interface CICClient_IFC#(numeric type r, numeric type n, numeric type m, numeric type sa, numeric type sb);
-   interface Get#(Int#(sa)) request;
-   interface Put#(Int#(sb)) response;
-endinterface
+import CICFilter_IFC::*;
 
-interface CICServer_IFC#(numeric type r, numeric type n, numeric type m, numeric type sa, numeric type sb);
-   interface Put#(Int#(sa)) request;
-   interface Get#(Int#(sb)) response;
-endinterface
+export CICServer_IFC(..),
+       CICClient_IFC(..),
+       mkCICDecimationFilter,
+       mkCICInterpolationFilter;
 
 /********************************************************************************
 * Decimation Filter
 ********************************************************************************/
-module mkCICDecimationFilter (CICServer_IFC#(r, n, m, sa, sb))
+module mkCICDecimationFilter (CICServer_IFC#(r, n, m, Int#(sa), Int#(sb)))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
              Add#(sa, c__, sb),
@@ -91,7 +82,7 @@ endmodule
 /********************************************************************************
 * Interpolation Filter
 ********************************************************************************/
-module mkCICInterpolationFilter (CICServer_IFC#(r, n, m, sa, sb))
+module mkCICInterpolationFilter (CICServer_IFC#(r, n, m, Int#(sa), Int#(sb)))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
              Add#(sa, c__, sb),

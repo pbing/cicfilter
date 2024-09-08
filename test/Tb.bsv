@@ -107,25 +107,25 @@ input:  Int#(12)
 output: Int#(12 + 9) = Int#(21)
 */
 (* synthesize *)
-module mkCICDecimationFilter_4_3_2 (CICServer_IFC#(4, 3, 2, 12, 12));
+module mkCICDecimationFilter_4_3_2 (CICServer_IFC#(4, 3, 2, Int#(12), Int#(12)));
    let ifc <- mkCICDecimationFilter;
    return ifc;
 endmodule
 
 (* synthesize *)
-module mkCICInterpolationFilter_4_3_2 (CICServer_IFC#(4, 3, 2, 12, 12));
+module mkCICInterpolationFilter_4_3_2 (CICServer_IFC#(4, 3, 2, Int#(12), Int#(12)));
    let ifc <- mkCICInterpolationFilter;
    return ifc;
 endmodule
 
 (* synthesize *)
-module mkCICComplexDecimationFilter_4_3_2 (CICComplexServer_IFC#(4, 3, 2, 12, 12));
+module mkCICComplexDecimationFilter_4_3_2 (CICServer_IFC#(4, 3, 2, Complex#(Int#(12)), Complex#(Int#(12))));
    let ifc <- mkCICComplexDecimationFilter;
    return ifc;
 endmodule
 
 (* synthesize *)
-module mkCICComplexInterpolationFilter_4_3_2 (CICComplexServer_IFC#(4, 3, 2, 12, 12));
+module mkCICComplexInterpolationFilter_4_3_2 (CICServer_IFC#(4, 3, 2, Complex#(Int#(12)), Complex#(Int#(12))));
    let ifc <- mkCICComplexInterpolationFilter;
    return ifc;
 endmodule

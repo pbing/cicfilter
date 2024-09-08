@@ -1,29 +1,20 @@
 package CICComplexFilter;
 
-import ClientServer::*;
 import Complex::*;
 import GetPut::*;
 import Vector::*;
 
-// R = rate change factor
-// N = number of comb stages
-// M = differential delay per stage
-//
-// G_max = (R M)^N
-interface CICComplexClient_IFC#(numeric type r, numeric type n, numeric type m, numeric type sa, numeric type sb);
-   interface Get#(Complex#(Int#(sa))) request;
-   interface Put#(Complex#(Int#(sb))) response;
-endinterface
+import CICFilter_IFC::*;
 
-interface CICComplexServer_IFC#(numeric type r, numeric type n, numeric type m, numeric type sa, numeric type sb);
-   interface Put#(Complex#(Int#(sa))) request;
-   interface Get#(Complex#(Int#(sb))) response;
-endinterface
+export CICServer_IFC(..),
+       CICClient_IFC(..),
+       mkCICComplexDecimationFilter,
+       mkCICComplexInterpolationFilter;
 
 /********************************************************************************
 * Decimation Filter
 ********************************************************************************/
-module mkCICComplexDecimationFilter (CICComplexServer_IFC#(r, n, m, sa, sb))
+module mkCICComplexDecimationFilter (CICServer_IFC#(r, n, m, Complex#(Int#(sa)), Complex#(Int#(sb))))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
              Add#(sa, c__, sb),
@@ -93,7 +84,7 @@ endmodule
 * Interpolation Filter
 ********************************************************************************/
 
-module mkCICComplexInterpolationFilter (CICComplexServer_IFC#(r, n, m, sa, sb))
+module mkCICComplexInterpolationFilter (CICServer_IFC#(r, n, m, Complex#(Int#(sa)), Complex#(Int#(sb))))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
              Add#(sa, c__, sb),
