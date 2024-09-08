@@ -11,6 +11,15 @@ export CICServer_IFC(..),
        mkCICComplexDecimationFilter,
        mkCICComplexInterpolationFilter;
 
+// convergent rounding
+function Int#(n) roundLSB(Int#(m) x) provisos (Add#(n, k, m));
+   let g = valueOf(m) - valueOf(n);
+   let h = 2**(g - 1);                 // half LSB for rounding
+   let xp = pack(x);
+   let r  = xp[g] == 1'b1 ? h : h - 1; // either 'b1000... or 'b0111...
+   return unpack(truncateLSB(xp + fromInteger(r)));
+endfunction
+
 /********************************************************************************
 * Decimation Filter
 ********************************************************************************/
@@ -74,8 +83,7 @@ module mkCICComplexDecimationFilter (CICServer_IFC#(r, n, m, Complex#(Int#(sa)),
 
    interface Get response;
       method ActionValue#(Complex#(Int#(sb))) get() if (tick);
-         let truncLSB = compose(unpack, compose(truncateLSB, pack));
-         return cmplxMap(truncLSB, readReg(last(dstg)));
+         return cmplxMap(roundLSB, readReg(last(dstg)));
       endmethod
    endinterface
 endmodule
@@ -143,8 +151,7 @@ module mkCICComplexInterpolationFilter (CICServer_IFC#(r, n, m, Complex#(Int#(sa
 
    interface Get response;
       method ActionValue#(Complex#(Int#(sb))) get();
-         let truncLSB = compose(unpack, compose(truncateLSB, pack));
-         return cmplxMap(truncLSB, readReg(last(istg)));
+         return cmplxMap(roundLSB, readReg(last(istg)));
       endmethod
    endinterface
 endmodule
