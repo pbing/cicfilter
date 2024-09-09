@@ -11,7 +11,7 @@ import CICComplexFilter::*;
 (* synthesize *)
 module mkTb1(Empty);
    Reg#(int) count <- mkReg(0);
-   let       dut <- mkCICDecimationFilter_25_4_1_16_16;
+   let       dut <- mkCICDecimationFilter_25_4_1_19_16_16;
 
    rule rl_1 (count > 0);
       //let x = 1;
@@ -34,7 +34,7 @@ endmodule
 (* synthesize *)
 module mkTb2(Empty);
    Reg#(int) count <- mkReg(0);
-   let       dut <- mkCICInterpolationFilter_64_4_3_8_8;
+   let       dut <- mkCICInterpolationFilter_64_4_2_28_8_8;
 
    rule rl_1 (count > 0);
       //let x = 1;
@@ -57,7 +57,7 @@ endmodule
 (* synthesize *)
 module mkTb3(Empty);
    Reg#(int) count <- mkReg(0);
-   let       dut <- mkCICComplexDecimationFilter_25_4_1_16_16;
+   let       dut <- mkCICComplexDecimationFilter_25_4_1_19_16_16;
 
    rule rl_1 (count > 0);
       //let x = cmplx(1, -1);
@@ -78,7 +78,7 @@ endmodule
 (* synthesize *)
 module mkTb4(Empty);
    Reg#(int) count <- mkReg(0);
-   let       dut <- mkCICComplexInterpolationFilter_64_4_3_8_8;
+   let       dut <- mkCICComplexInterpolationFilter_64_4_2_28_8_8;
 
    rule rl_1 (count > 0);
       //let x = cmplx(1, -1);
@@ -98,28 +98,28 @@ endmodule
 
 // Fig. 5. Example CIC decimation filter for N = 4, M = 1, and R = 25.
 (* synthesize *)
-module mkCICDecimationFilter_25_4_1_16_16 (CICServer_IFC#(25, 4, 1, 19, Int#(16), Int#(16)));
+module mkCICDecimationFilter_25_4_1_19_16_16 (CICServer_IFC#(25, 4, 1, 19, Int#(16), Int#(16)));
    let ifc <- mkCICDecimationFilter;
    return ifc;
 endmodule
 
 // Fig. 6. Example CIC interpolation filter N = 4, M = 2, and R = 64.
 (* synthesize *)
-module mkCICInterpolationFilter_64_4_3_8_8 (CICServer_IFC#(64, 4, 2, 28, Int#(8), Int#(8)));
+module mkCICInterpolationFilter_64_4_2_28_8_8 (CICServer_IFC#(64, 4, 2, 28, Int#(8), Int#(8)));
    let ifc <- mkCICInterpolationFilter;
    return ifc;
 endmodule
 
 // Fig. 5. Example CIC decimation filter for N = 4, M = 1, and R = 25.
 (* synthesize *)
-module mkCICComplexDecimationFilter_25_4_1_16_16 (CICServer_IFC#(25, 4, 1, 19, Complex#(Int#(16)), Complex#(Int#(16))));
+module mkCICComplexDecimationFilter_25_4_1_19_16_16 (CICServer_IFC#(25, 4, 1, 19, Complex#(Int#(16)), Complex#(Int#(16))));
    let ifc <- mkCICComplexDecimationFilter;
    return ifc;
 endmodule
 
 // Fig. 6. Example CIC interpolation filter N = 4, M = 2, and R = 64.
 (* synthesize *)
-module mkCICComplexInterpolationFilter_64_4_3_8_8 (CICServer_IFC#(64, 4, 2, 28, Complex#(Int#(8)), Complex#(Int#(8))));
+module mkCICComplexInterpolationFilter_64_4_2_28_8_8 (CICServer_IFC#(64, 4, 2, 28, Complex#(Int#(8)), Complex#(Int#(8))));
    let ifc <- mkCICComplexInterpolationFilter;
    return ifc;
 endmodule
