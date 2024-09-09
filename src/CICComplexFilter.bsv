@@ -22,23 +22,25 @@ endfunction
 
 /********************************************************************************
 * Decimation Filter
+* 
+* R = integer range change factor
+* N = number of comb stages
+* M = differential delay (usually 1 or 2)
+* G = ceil((R M) ^ N)
 ********************************************************************************/
-module mkCICComplexDecimationFilter (CICServer_IFC#(r, n, m, Complex#(Int#(sa)), Complex#(Int#(sb))))
+module mkCICComplexDecimationFilter (CICServer_IFC#(r, n, m, g, Complex#(Int#(sa)), Complex#(Int#(sb))))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
-             Add#(sa, c__, sb),
-             Add#(sb, d__, sf),
-             Mul#(r, m, rm),
-             Log#(rm, lrm),
-             Mul#(lrm, n, lrmn),
-             Add#(sa, lrmn, sf));
+             Add#(sa, g, sf),
+             Add#(sb, d__, sf));
 
    Vector#(n, Reg#(Complex#(Int#(sf)))) istg <- replicateM(mkReg(0));
    Vector#(n, Reg#(Complex#(Int#(sf)))) dstg <- replicateM(mkReg(0));
    Vector#(n, Vector#(m, Reg#(Complex#(Int#(sf))))) ddly <- replicateM(replicateM(mkReg(0)));
    Reg#(Bit#(TLog#(r))) count <- mkReg(0);
-   Wire#(Bool) tick <- mkWire;
    Wire#(Complex#(Int#(sf))) wr_x <- mkWire;
+
+   let tick = count == fromInteger(valueOf(r) - 1);
 
    rule rl_integrators;
       for (Integer i = 0; i < valueOf(n); i = i + 1)
@@ -71,8 +73,10 @@ module mkCICComplexDecimationFilter (CICServer_IFC#(r, n, m, Complex#(Int#(sa)),
    endrule
 
    rule rl_count;
-      count <= count + 1;
-      tick <= count == fromInteger(valueOf(r) - 1);
+      if (tick)
+         count <= 0;
+      else
+         count <= count + 1;
    endrule
 
    interface Put request;
@@ -90,24 +94,26 @@ endmodule
 
 /********************************************************************************
 * Interpolation Filter
-********************************************************************************/
+* 
+* R = integer range change factor
+* N = number of comb stages
+* M = differential delay (usually 1 or 2)
+* G = ceil((R M) ^ N)
+*******************************************************************************/
 
-module mkCICComplexInterpolationFilter (CICServer_IFC#(r, n, m, Complex#(Int#(sa)), Complex#(Int#(sb))))
+module mkCICComplexInterpolationFilter (CICServer_IFC#(r, n, m, g, Complex#(Int#(sa)), Complex#(Int#(sb))))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
-             Add#(sa, c__, sb),
-             Add#(sb, d__, sf),
-             Mul#(r, m, rm),
-             Log#(rm, lrm),
-             Mul#(lrm, n, lrmn),
-             Add#(sa, lrmn, sf));
+             Add#(sa, g, sf),
+             Add#(sb, d__, sf));
 
    Vector#(n, Reg#(Complex#(Int#(sf)))) istg <- replicateM(mkReg(0));
    Vector#(n, Reg#(Complex#(Int#(sf)))) dstg <- replicateM(mkReg(0));
    Vector#(n, Vector#(m, Reg#(Complex#(Int#(sf))))) ddly <- replicateM(replicateM(mkReg(0)));
    Reg#(Bit#(TLog#(r))) count <- mkReg(0);
-   Wire#(Bool) tick <- mkWire;
    Wire#(Complex#(Int#(sf))) wr_x <- mkWire;
+
+   let tick = count == fromInteger(valueOf(r) - 1);
 
    rule rl_integrators;
       for (Integer i = 0; i < valueOf(n); i = i + 1)
@@ -138,8 +144,10 @@ module mkCICComplexInterpolationFilter (CICServer_IFC#(r, n, m, Complex#(Int#(sa
    endrule
 
    rule rl_count;
-      count <= count + 1;
-      tick <= count == fromInteger(valueOf(r) - 1);
+      if (tick)
+         count <= 0;
+      else
+         count <= count + 1;
    endrule
 
    // assumes constant 'x' between ticks

@@ -16,10 +16,10 @@ bsc -sim -e mkTb1
 ```
 or
 ```shell
-./brun.sh mkTb1 -m 100
-./brun.sh mkTb2 -m 100
-./brun.sh mkTb3 -m 100
-./brun.sh mkTb4 -m 100
+./brun.sh mkTb1 -m 500
+./brun.sh mkTb2 -m 1000
+./brun.sh mkTb3 -m 500
+./brun.sh mkTb4 -m 1000
 ```
 
 # Create RTL
