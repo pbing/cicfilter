@@ -21,7 +21,7 @@ endfunction
 
 /********************************************************************************
 * Decimation Filter
-* 
+*
 * R = integer range change factor
 * N = number of comb stages
 * M = differential delay (usually 1 or 2)
@@ -31,7 +31,7 @@ module mkCICDecimationFilter (CICServer_IFC#(r, n, m, g, Int#(sa), Int#(sb)))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
              Add#(sa, g, sf),
-             Add#(sb, d__, sf));
+             Add#(sb, c__, sf));
 
    Vector#(n, Reg#(Int#(sf))) istg <- replicateM(mkReg(0));
    Vector#(n, Reg#(Int#(sf))) dstg <- replicateM(mkReg(0));
@@ -40,7 +40,7 @@ module mkCICDecimationFilter (CICServer_IFC#(r, n, m, g, Int#(sa), Int#(sb)))
    Wire#(Int#(sf)) wr_x <- mkWire;
 
    let tick = count == fromInteger(valueOf(r) - 1);
-   
+
    rule rl_integrators;
       for (Integer i = 0; i < valueOf(n); i = i + 1)
          if (i == 0)
@@ -93,7 +93,7 @@ endmodule
 
 /********************************************************************************
 * Interpolation Filter
-* 
+*
 * R = integer range change factor
 * N = number of comb stages
 * M = differential delay (usually 1 or 2)
@@ -103,23 +103,17 @@ module mkCICInterpolationFilter (CICServer_IFC#(r, n, m, g, Int#(sa), Int#(sb)))
    provisos (Add#(1, a__, n),
              Add#(1, b__, m),
              Add#(sa, g, sf),
-             Add#(sb, d__, sf));
+             Add#(sb, c__, sf),
+             Add#(sc, d__, sf),
+             Add#(sa, n, sc));
 
    Vector#(n, Reg#(Int#(sf))) istg <- replicateM(mkReg(0));
-   Vector#(n, Reg#(Int#(sf))) dstg <- replicateM(mkReg(0));
-   Vector#(n, Vector#(m, Reg#(Int#(sf)))) ddly <- replicateM(replicateM(mkReg(0)));
+   Vector#(n, Reg#(Int#(sc))) dstg <- replicateM(mkReg(0));
+   Vector#(n, Vector#(m, Reg#(Int#(sc)))) ddly <- replicateM(replicateM(mkReg(0)));
    Reg#(Bit#(TLog#(r))) count <- mkReg(0);
-   Wire#(Int#(sf)) wr_x <- mkWire;
+   Wire#(Int#(sc)) wr_x <- mkWire;
 
    let tick = count == fromInteger(valueOf(r) - 1);
-
-   rule rl_integrators;
-      for (Integer i = 0; i < valueOf(n); i = i + 1)
-         if (i == 0)
-            istg[i] <= istg[i] + readReg(last(dstg));
-         else
-            istg[i] <= istg[i] + istg[i-1];
-   endrule
 
    rule rl_comb;
       for (Integer i = 0; i < valueOf(n); i = i + 1) begin
@@ -141,7 +135,14 @@ module mkCICInterpolationFilter (CICServer_IFC#(r, n, m, g, Int#(sa), Int#(sb)))
       end
    endrule
 
- 
+   rule rl_integrators;
+      for (Integer i = 0; i < valueOf(n); i = i + 1)
+         if (i == 0)
+            istg[i] <= istg[i] + extend(readReg(last(dstg)));
+         else
+            istg[i] <= istg[i] + istg[i-1];
+   endrule
+
    rule rl_count;
       if (tick)
          count <= 0;
